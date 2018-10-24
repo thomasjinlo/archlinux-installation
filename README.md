@@ -23,3 +23,4 @@ Create the partitions using [gdisk](https://wiki.archlinux.org/index.php/Gdisk).
 	  3 | 8 GiB (ram 2x) | 8200 | swap
 	  4 | rest | EF02 | home
 
+* after the desired table is created enter `w` to write it permanently
