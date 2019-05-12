@@ -24,3 +24,34 @@ Create the partitions using [gdisk](https://wiki.archlinux.org/index.php/Gdisk).
 	  4 | rest | EF02 | home
 
 * after the desired table is created enter `w` to write it permanently
+
+---
+
+## Create File System
+After each partition has been created, we need to create the filesystem that'll be used for each partition (excluding the swap partition). You can check the current file types by running `lsblk -f`. If they're not in the desired format listed before, we'll have to set it up manually.
+
+* For `sda1` or our `esp` partition, run `mkfs.fat -F32 /dev/sda1`
+* For `sda2/sda4` or our `root/home` partitions, run `mkfs.ext4 /dev/sda2` and `mkfs.ext4 /dev/sda4`.
+
+#### desired file types
+
+NAME | FSTYPE
+-----|-------
+sda1 | vfat
+sda2 | ext4
+sda3 | swap
+sda4 | ext4
+
+---
+
+## Mount the partitions
+The last remaining step before we start our install process is to mount our partitions to the associated directories. If there already is no `/mnt`, `/mnt/efi`, `/mnt/home` directories, create them. `/mnt` should most likely be available, but the other two nested directories are likely not there. Once they've been created we're ready to start the mounting process.
+
+* `mount /dev/sda2 /mnt`
+* `mount /dev/sda1 /mnt/efi`
+* `mount /dev/sda4 /mnt/home`
+
+Additionally we'll have to setup the swap partition, which doesn't require mounting.
+
+* `mkswap /dev/sda3`
+* `swapon /dev/sda3`
