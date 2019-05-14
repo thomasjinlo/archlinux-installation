@@ -48,10 +48,50 @@ sda4 | ext4
 The last remaining step before we start our install process is to mount our partitions to the associated directories. If there already is no `/mnt`, `/mnt/efi`, `/mnt/home` directories, create them. `/mnt` should most likely be available, but the other two nested directories are likely not there. Once they've been created we're ready to start the mounting process.
 
 * `mount /dev/sda2 /mnt`
-* `mount /dev/sda1 /mnt/efi`
+* `mount /dev/sda1 /mnt/boot`
 * `mount /dev/sda4 /mnt/home`
 
 Additionally we'll have to setup the swap partition, which doesn't require mounting.
 
 * `mkswap /dev/sda3`
 * `swapon /dev/sda3`
+
+---
+
+## Installing packages and setting up environment
+Run `pacstrap /mnt base base-devel neovim`, Normally all you need is `base` but I like the extra libraries from `base-devel` and prefer to use `neovim` over other default editors like `nano`/`vi`.
+
+#### Setting up wireless connection for package install
+If you're not connected through a ethernet port, you can setup wifi running `wifi-menu`. It should display a list of wireless networks in your area and will allow you to connect to them.
+
+#### Update the system clock
+`timedatectl set-ntp true`, verify with `timedatectl status`
+
+#### Generate Filesystem Table
+`genfstab -U /mnt >> /mnt/etc/fstab`
+
+#### Change root
+`arch-chroot /mnt`
+
+#### Setup timezone and localization
+`ln -sf /usr/share/zoneinfo/<i>Region</i>/<i>City</i> /etc/localtime`
+`hwclock --systohc`
+`locale-gen`
+create a new file `/etc/locale.conf`, and add `LANG=en_us.UTF-8`
+
+#### Set hostname
+create a new file `/etc/hostname`, and add your hostname on the first line
+
+#### Setup bootloader
+`bootctl --path=/boot install`
+`bootctl update`
+
+Add this to `/boot/loader/loader.conf`
+```
+# /boot/loader/loader.conf
+default archlinux
+```
+Create an entry config, `/boot/loader/entries/archlinux.conf`
+```
+title archlinux
+linux /vmlinuz-linux
