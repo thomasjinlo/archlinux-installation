@@ -3,10 +3,8 @@ Archlinux is a lightweight linux distribution that is so minimal it requires a l
 
 This guide is an extracted version of the arch wiki installation guide, with the primary focus on the necessary configurations needed to install arch in UEFI mode with [systemd boot](https://wiki.archlinux.org/index.php/Systemd-boot).
 
----
-
-# Partition setup
-## [Creating the partitions](https://wiki.archlinux.org/index.php/GPT_fdisk#Create_a_partition_table_and_partitions)
+## Partition setup
+### [Creating the partitions](https://wiki.archlinux.org/index.php/GPT_fdisk#Create_a_partition_table_and_partitions)
 Create the partitions using [gdisk](https://wiki.archlinux.org/index.php/Gdisk). Use `lsblk` to list out your drives/devices. Usually `sda` will be your main drive you want to partition. I'll use `sda` as the main drive for this example.
 
 * `gdisk /dev/sda`, to enter an interactive session.
@@ -24,6 +22,7 @@ Create the partitions using [gdisk](https://wiki.archlinux.org/index.php/Gdisk).
 
 #### desired partition table (press p to print current table)
 **Note:** *size of swap file is usually double your ram. Since I have 4gb of ram I'm giving it `+8G`.
+
 Number | Size | Code | Name
 -------|----- | -----|-------
 1 | 550.0 MiB | EF00 | EFI System
@@ -31,7 +30,7 @@ Number | Size | Code | Name
 3 | 8 GiB | 8200 | Linux swap
 4 | rest | 8302 | Linux /home
 
-## [Formatting the filesystem](https://wiki.archlinux.org/index.php/File_systems#Create_a_file_system)
+### [Formatting the filesystem](https://wiki.archlinux.org/index.php/File_systems#Create_a_file_system)
 After each partition has been created, we need to format them with the appropriate filesystem (excluding the swap partition). You can check the current file types by running `lsblk -f`. If they're not in the desired format listed before, we'll have to set it up manually.
 
 * `mkfs.fat -F32 /dev/sda1` - configures the EFI System Partition to use vfat.
@@ -48,16 +47,15 @@ sda2 | ext4
 sda3 | swap
 sda4 | ext4
 
-## [Mounting the partitions](https://wiki.archlinux.org/index.php/File_systems#Mount_a_file_system)
+### [Mounting the partitions](https://wiki.archlinux.org/index.php/File_systems#Mount_a_file_system)
 The last remaining step before we start our install process is to mount our partitions to the associated directories. If there already is no `/mnt`, `/mnt/boot`, `/mnt/home` directories, create them. `/mnt` should most likely be available, but the other two nested directories are likely not there. Once they've been created we're ready to start the mounting process.
 
 * `mount /dev/sda2 /mnt`
 * `mount /dev/sda1 /mnt/boot`
 * `mount /dev/sda4 /mnt/home`
 
----
 
-# Installation of base packages
+## Installation of base packages
 Now that we have the partitions setup and ready to go, we can go ahead and start installing the base packages for arch. I'll include what I think are the basic essentials necessary for a minimal arch setup.
 
 ### Check if you have internet access
@@ -73,9 +71,7 @@ To check if you have connection, run `ping google.com`, you should see that requ
 ### Install the packages
 `pacstrap /mnt base base-devel intel-ucode dialog wpa_supplicant neovim`
 
----
-
-# Required environment configurations
+## Required environment configurations
 
 #### Update the system clock
 `timedatectl set-ntp true`
@@ -106,18 +102,16 @@ Create a new file `/etc/hostname`.
 *myhostname*
 ```
 
----
-
-# [Setup bootloader](https://wiki.archlinux.org/index.php/Systemd-boot)
+## [Setup bootloader](https://wiki.archlinux.org/index.php/Systemd-boot)
 For our installation we'll be using systemd boot as the bootloader. A bootloader is necessary as part of the booting process for loading the kernel and initial RAM disk with specific paramaters.
 
-## [Install and update bootloader](https://wiki.archlinux.org/index.php/Systemd-boot#Installation)
+### [Install and update bootloader](https://wiki.archlinux.org/index.php/Systemd-boot#Installation)
 `bootctl --path=/boot install`
 `bootctl update`
 
 Add this to `/boot/loader/loader.conf`
 
-## [Configure](https://wiki.archlinux.org/index.php/Systemd-boot#Configuration)
+### [Configure](https://wiki.archlinux.org/index.php/Systemd-boot#Configuration)
 Create a loader config `/boot/laoder/loader.conf`.
 ```
 default archlinux
